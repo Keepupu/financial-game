@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>第一關｜你的人生收入設計師 v4</title>
+<style>
+:root{--b:#1976d2;--g:#2e9d45;--o:#f2a000;--bg:#f5f7fb;--bd:#dfe3e8;--tx:#1f2937;--mu:#6b7280}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:1100px;margin:auto;padding:14px}.card{background:#fff;border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:12px}.title{font-size:24px;font-weight:850}.sub{color:var(--mu);margin-top:4px}.status{display:inline-block;margin-top:8px;padding:5px 9px;border-radius:999px;background:#fff3cd;color:#7a5b00;font-size:12px}.status.ok{background:#e8f7ec;color:#256c36}.grid{display:grid;grid-template-columns:280px 1fr;gap:12px}.panel h3{margin:4px 0 10px;font-size:16px}.income{border-radius:12px;padding:11px;margin:8px 0}.income.blue{border:1px solid #b9d5f8;background:#f6faff}.income.green{border:1px solid #bfe6c6;background:#f7fff8}.label{font-size:13px;font-weight:750}.big{font-size:25px;font-weight:900;margin:3px 0}.blueText{color:var(--b)}.greenText{color:var(--g)}input[type=range]{width:100%}.row{display:flex;gap:8px}.btn{border:0;border-radius:10px;padding:10px 12px;font-weight:800;background:#111827;color:#fff}.btn.light{background:#fff;color:#111827;border:1px solid var(--bd)}.chartWrap{height:500px;border:1px solid var(--bd);border-radius:14px;overflow:hidden;background:#fff;position:relative}.chartWrap svg{width:100%;height:100%;display:block;touch-action:none;-webkit-user-select:none;user-select:none}.hint{font-size:12px;color:var(--mu);margin-top:7px}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin-bottom:8px}.sw{display:inline-block;width:22px;height:4px;border-radius:5px;margin-right:5px;vertical-align:middle}.eventGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.event{border:1px solid var(--bd);border-radius:12px;padding:12px}.result{margin-top:8px;padding:8px;background:#f3f4f6;border-radius:8px;display:none;line-height:1.5;font-size:13px}.nodeHit{fill:transparent;stroke:transparent}.nodeDot{pointer-events:none}.nodeLabel{pointer-events:none;font-size:11px;font-weight:800}.sec{padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--bd)}.sec:last-child{border:0;margin-bottom:0;padding-bottom:0}.tiny{font-size:12px;color:var(--mu);line-height:1.45}
+@media(max-width:820px){.grid{grid-template-columns:1fr}.chartWrap{height:430px}.title{font-size:21px}.eventGrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="card"><div class="title">第一關｜你的人生收入設計師</div><div class="sub">拖曳藍色與綠色節點，設計你的人生收入曲線。</div><span id="jsStatus" class="status">互動程式尚未啟動</span></div>
+ <div class="grid">
+  <div class="card panel">
+   <div class="sec"><h3>目前節點</h3><div id="selectedAge" class="tiny">25 歲</div>
+    <div class="income blue"><div class="label blueText">主動收入</div><div id="activeValue" class="big blueText">80,000 元</div><input id="activeRange" type="range" min="0" max="300000" step="1000" value="80000"></div>
+    <div class="income green"><div class="label greenText">被動收入</div><div id="passiveValue" class="big greenText">5,000 元</div><input id="passiveRange" type="range" min="0" max="300000" step="1000" value="5000"></div>
+   </div>
+   <div class="sec"><h3>年度加薪率</h3><div id="raiseLabel" class="tiny">25 → 30 歲：3%</div><input id="raiseRange" type="range" min="-5" max="15" step="0.5" value="3"><div class="row"><button id="applyRaise" class="btn">套用到下一節點</button><button id="reset" class="btn light">重設</button></div></div>
+   <div class="tiny">測試方式：先直接拖曳圖上的藍色圓點。若裝置不支援拖曳，下面兩個滑桿也一定能修改同一節點的數值。</div>
+  </div>
+  <div class="card">
+   <div class="legend"><span><i class="sw" style="background:#1976d2"></i>主動收入</span><span><i class="sw" style="background:#2e9d45"></i>被動收入</span><span><i class="sw" style="background:#f2a000"></i>生活水平上限</span></div>
+   <div class="chartWrap"><svg id="chart" viewBox="0 0 900 500" preserveAspectRatio="none">
+    <rect width="900" height="500" fill="#fff"/><g id="gridG"></g>
+    <polyline id="totalLine" fill="none" stroke="#f2a000" stroke-width="3" stroke-dasharray="9 6"/>
+    <polyline id="activeLine" fill="none" stroke="#1976d2" stroke-width="4"/>
+    <polyline id="passiveLine" fill="none" stroke="#2e9d45" stroke-width="4"/>
+    <g id="nodesG"></g>
+   </svg></div><div class="hint">圓點的透明觸控區比看見的圓點大，手機上比較容易抓到。拖動時左側金額會同步更新。</div>
+   <div class="eventGrid"><div class="event"><b>情境一｜50歲失去工作</b><p class="tiny">主動收入變成 0，只留下被動收入。</p><button id="job" class="btn">看結果</button><div id="jobResult" class="result"></div></div><div class="event"><b>情境二｜安穩退休</b><p class="tiny">65歲停止工作後，你能維持多少收入水平？</p><button id="retire" class="btn">看結果</button><div id="retireResult" class="result"></div></div></div>
+  </div>
+ </div>
+</div>
+<script>
+(function(){
+ const ages=[25,30,35,40,45,50,55,60,65,70,75,80,85];
+ let active=[], passive=[], selected=0, drag=null;
+ const svg=document.getElementById('chart'), gridG=document.getElementById('gridG'), nodesG=document.getElementById('nodesG');
+ const activeLine=document.getElementById('activeLine'), passiveLine=document.getElementById('passiveLine'), totalLine=document.getElementById('totalLine');
+ const AR=document.getElementById('activeRange'), PR=document.getElementById('passiveRange'), RR=document.getElementById('raiseRange');
+ const W=900,H=500,L=66,R=28,T=24,B=52,MAX=300000,NS='http://www.w3.org/2000/svg';
+ function fmt(v){return Math.round(v).toLocaleString('zh-TW')+' 元'}
+ function x(i){return L+i*(W-L-R)/(ages.length-1)}
+ function y(v){return H-B-Math.max(0,Math.min(MAX,v))/MAX*(H-T-B)}
+ function valueFromClientY(clientY){const rect=svg.getBoundingClientRect(); const sy=(clientY-rect.top)*H/rect.height; return Math.max(0,Math.min(MAX,Math.round(((H-B-sy)/(H-T-B)*MAX)/1000)*1000));}
+ function E(tag,a,p){const e=document.createElementNS(NS,tag);Object.keys(a).forEach(k=>e.setAttribute(k,a[k]));p.appendChild(e);return e}
+ function pts(arr){return arr.map((v,i)=>x(i)+','+y(v)).join(' ')}
+ function drawGrid(){gridG.innerHTML='';for(let k=0;k<=6;k++){let yy=T+k*(H-T-B)/6;E('line',{x1:L,y1:yy,x2:W-R,y2:yy,stroke:'#e5e7eb'},gridG);let t=E('text',{x:8,y:yy+4,fill:'#6b7280','font-size':11},gridG);t.textContent=Math.round(MAX*(1-k/6)/1000)+'K'}ages.forEach((a,i)=>{let t=E('text',{x:x(i),y:H-19,'text-anchor':'middle',fill:'#6b7280','font-size':11},gridG);t.textContent=a})}
+ function sync(){document.getElementById('selectedAge').textContent=ages[selected]+' 歲';document.getElementById('activeValue').textContent=fmt(active[selected]);document.getElementById('passiveValue').textContent=fmt(passive[selected]);AR.value=active[selected];PR.value=passive[selected];document.getElementById('raiseLabel').textContent=ages[Math.min(selected,ages.length-2)]+' → '+ages[Math.min(selected+1,ages.length-1)]+' 歲：'+RR.value+'%'}
+ function render(){activeLine.setAttribute('points',pts(active));passiveLine.setAttribute('points',pts(passive));totalLine.setAttribute('points',pts(active.map((v,i)=>v+passive[i])));nodesG.innerHTML='';ages.forEach((a,i)=>[['active',active[i],'#1976d2'],['passive',passive[i],'#2e9d45']].forEach(([kind,val,color])=>{const hit=E('circle',{cx:x(i),cy:y(val),r:22,class:'nodeHit','data-kind':kind,'data-i':i},nodesG);const dot=E('circle',{cx:x(i),cy:y(val),r:(selected===i?9:7),fill:(selected===i?color:'#fff'),stroke:color,'stroke-width':3,class:'nodeDot'},nodesG);if(selected===i){const tx=E('text',{x:x(i),y:y(val)-14,'text-anchor':'middle',fill:color,class:'nodeLabel'},nodesG);tx.textContent=Math.round(val/1000)+'K'} bindDrag(hit)}));sync()}
+ function choose(i){selected=Number(i);render()}
+ function updateDrag(clientY){if(!drag)return;const v=valueFromClientY(clientY);selected=drag.i;if(drag.kind==='active')active[drag.i]=v;else passive[drag.i]=v;render()}
+ function bindDrag(el){
+   el.style.touchAction='none';
+   el.addEventListener('pointerdown',e=>{
+      drag={kind:el.dataset.kind,i:Number(el.dataset.i),pointerId:e.pointerId};
+      selected=drag.i;
+      try{el.setPointerCapture(e.pointerId)}catch(_){}
+      updateDrag(e.clientY);
+      e.preventDefault();
+   });
+   el.addEventListener('pointermove',e=>{
+      if(drag && drag.pointerId===e.pointerId){updateDrag(e.clientY);e.preventDefault();}
+   });
+   const end=e=>{if(drag && (drag.pointerId===undefined || drag.pointerId===e.pointerId)) drag=null;};
+   el.addEventListener('pointerup',end);
+   el.addEventListener('pointercancel',end);
+   el.addEventListener('click',()=>choose(el.dataset.i));
+ }
+ AR.addEventListener('input',()=>{active[selected]=Number(AR.value);render()});PR.addEventListener('input',()=>{passive[selected]=Number(PR.value);render()});RR.addEventListener('input',sync);
+ document.getElementById('applyRaise').onclick=()=>{let i=Math.min(selected,ages.length-2),rate=Number(RR.value)/100;active[i+1]=Math.round(active[i]*Math.pow(1+rate,5)/1000)*1000;selected=i+1;render()};
+ document.getElementById('reset').onclick=reset;
+ function nearest(age){return ages.reduce((best,a,i)=>Math.abs(a-age)<Math.abs(ages[best]-age)?i:best,0)}
+ document.getElementById('job').onclick=()=>{const i=nearest(50),before=active[i]+passive[i],after=passive[i],drop=before?Math.round((1-after/before)*100):0,el=document.getElementById('jobResult');el.style.display='block';el.innerHTML='原本每月總收入 <b>'+fmt(before)+'</b>；失去工作後剩 <b>'+fmt(after)+'</b>，約下降 <b>'+drop+'%</b>。'};
+ document.getElementById('retire').onclick=()=>{const i=nearest(65),before=active[i]+passive[i],after=passive[i],keep=before?Math.round(after/before*100):0,el=document.getElementById('retireResult');el.style.display='block';el.innerHTML='退休前每月總收入 <b>'+fmt(before)+'</b>；退休後被動收入 <b>'+fmt(after)+'</b>，約保留原收入水平的 <b>'+keep+'%</b>。'};
+ function reset(){active=[];passive=[];ages.forEach((a,i)=>{active.push(a<=65?Math.round(80000*Math.pow(1.03,i*5)/1000)*1000:0);passive.push(Math.round((5000+i*3500)/1000)*1000)});selected=0;RR.value=3;render()}
+ drawGrid();reset();const js=document.getElementById('jsStatus');js.textContent='互動程式已啟動｜v4';js.classList.add('ok');
+})();
+</script>
+</body></html>
